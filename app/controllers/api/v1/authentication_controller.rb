@@ -14,6 +14,7 @@ module Api
                                 token=AuthenticationTokenService.encode(user.id)
                                 render json: {token: token},status: :created
                         end
+                        
                         private
                         def parameter_missing(e)
                                 render json: {error: e.message},status: :unprocessable_entity
