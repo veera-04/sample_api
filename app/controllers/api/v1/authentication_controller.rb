@@ -11,7 +11,7 @@ module Api
 
                                 raise AuthenticationError unless user.authenticate(params.require(:pwd))
 
-                                token=AuthenticationTokenService.call(user.id)
+                                token=AuthenticationTokenService.encode(user.id)
                                 render json: {token: token},status: :created
                         end
                         private

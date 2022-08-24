@@ -1,6 +1,11 @@
 module Api
   module V1
     class BooksController < ApplicationController
+
+      include ActionController::HttpAuthentication::Token
+
+      before_action :authenticate_user, only: [:create,:destroy]
+
       def index
         books=Book.limit(limit).offset(params[:offset])
         render json: BooksRepresenter.new(books).as_json
@@ -22,15 +27,26 @@ module Api
       end
 
       private
+
+      def authenticate_user
+        token, _options=token_and_options(request)
+        user_id=AuthenticationTokenService.decode(token)
+        User.find(user_id)
+        rescue ActiveRecord::RecordNotFound
+          render status: :unauthorized
+      end
+
       def limit
         [
           params.fetch(:limit,100).to_i,
           100
-      ].min
+        ].min
       end
+
       def book_params
         params.require(:book).permit(:title)
       end
+
       def author_params
         params.require(:author).permit(:first_name,:last_name,:age)
       end
